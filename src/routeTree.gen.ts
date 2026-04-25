@@ -9,38 +9,146 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ResultsRouteImport } from './routes/results'
+import { Route as QuestionsRouteImport } from './routes/questions'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiQueryRouteImport } from './routes/api.query'
+import { Route as ApiProductsRouteImport } from './routes/api.products'
+import { Route as ApiChatRouteImport } from './routes/api.chat'
+import { Route as ApiQuestionsAnswerRouteImport } from './routes/api.questions.answer'
+import { Route as ApiProductsIdPricesRouteImport } from './routes/api.products.$id.prices'
 
+const ResultsRoute = ResultsRouteImport.update({
+  id: '/results',
+  path: '/results',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuestionsRoute = QuestionsRouteImport.update({
+  id: '/questions',
+  path: '/questions',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiQueryRoute = ApiQueryRouteImport.update({
+  id: '/api/query',
+  path: '/api/query',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiProductsRoute = ApiProductsRouteImport.update({
+  id: '/api/products',
+  path: '/api/products',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiQuestionsAnswerRoute = ApiQuestionsAnswerRouteImport.update({
+  id: '/api/questions/answer',
+  path: '/api/questions/answer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiProductsIdPricesRoute = ApiProductsIdPricesRouteImport.update({
+  id: '/$id/prices',
+  path: '/$id/prices',
+  getParentRoute: () => ApiProductsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/questions': typeof QuestionsRoute
+  '/results': typeof ResultsRoute
+  '/api/chat': typeof ApiChatRoute
+  '/api/products': typeof ApiProductsRouteWithChildren
+  '/api/query': typeof ApiQueryRoute
+  '/api/questions/answer': typeof ApiQuestionsAnswerRoute
+  '/api/products/$id/prices': typeof ApiProductsIdPricesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/questions': typeof QuestionsRoute
+  '/results': typeof ResultsRoute
+  '/api/chat': typeof ApiChatRoute
+  '/api/products': typeof ApiProductsRouteWithChildren
+  '/api/query': typeof ApiQueryRoute
+  '/api/questions/answer': typeof ApiQuestionsAnswerRoute
+  '/api/products/$id/prices': typeof ApiProductsIdPricesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/questions': typeof QuestionsRoute
+  '/results': typeof ResultsRoute
+  '/api/chat': typeof ApiChatRoute
+  '/api/products': typeof ApiProductsRouteWithChildren
+  '/api/query': typeof ApiQueryRoute
+  '/api/questions/answer': typeof ApiQuestionsAnswerRoute
+  '/api/products/$id/prices': typeof ApiProductsIdPricesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/questions'
+    | '/results'
+    | '/api/chat'
+    | '/api/products'
+    | '/api/query'
+    | '/api/questions/answer'
+    | '/api/products/$id/prices'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/questions'
+    | '/results'
+    | '/api/chat'
+    | '/api/products'
+    | '/api/query'
+    | '/api/questions/answer'
+    | '/api/products/$id/prices'
+  id:
+    | '__root__'
+    | '/'
+    | '/questions'
+    | '/results'
+    | '/api/chat'
+    | '/api/products'
+    | '/api/query'
+    | '/api/questions/answer'
+    | '/api/products/$id/prices'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  QuestionsRoute: typeof QuestionsRoute
+  ResultsRoute: typeof ResultsRoute
+  ApiChatRoute: typeof ApiChatRoute
+  ApiProductsRoute: typeof ApiProductsRouteWithChildren
+  ApiQueryRoute: typeof ApiQueryRoute
+  ApiQuestionsAnswerRoute: typeof ApiQuestionsAnswerRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/results': {
+      id: '/results'
+      path: '/results'
+      fullPath: '/results'
+      preLoaderRoute: typeof ResultsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/questions': {
+      id: '/questions'
+      path: '/questions'
+      fullPath: '/questions'
+      preLoaderRoute: typeof QuestionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +156,64 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/query': {
+      id: '/api/query'
+      path: '/api/query'
+      fullPath: '/api/query'
+      preLoaderRoute: typeof ApiQueryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/products': {
+      id: '/api/products'
+      path: '/api/products'
+      fullPath: '/api/products'
+      preLoaderRoute: typeof ApiProductsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/questions/answer': {
+      id: '/api/questions/answer'
+      path: '/api/questions/answer'
+      fullPath: '/api/questions/answer'
+      preLoaderRoute: typeof ApiQuestionsAnswerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/products/$id/prices': {
+      id: '/api/products/$id/prices'
+      path: '/$id/prices'
+      fullPath: '/api/products/$id/prices'
+      preLoaderRoute: typeof ApiProductsIdPricesRouteImport
+      parentRoute: typeof ApiProductsRoute
+    }
   }
 }
 
+interface ApiProductsRouteChildren {
+  ApiProductsIdPricesRoute: typeof ApiProductsIdPricesRoute
+}
+
+const ApiProductsRouteChildren: ApiProductsRouteChildren = {
+  ApiProductsIdPricesRoute: ApiProductsIdPricesRoute,
+}
+
+const ApiProductsRouteWithChildren = ApiProductsRoute._addFileChildren(
+  ApiProductsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  QuestionsRoute: QuestionsRoute,
+  ResultsRoute: ResultsRoute,
+  ApiChatRoute: ApiChatRoute,
+  ApiProductsRoute: ApiProductsRouteWithChildren,
+  ApiQueryRoute: ApiQueryRoute,
+  ApiQuestionsAnswerRoute: ApiQuestionsAnswerRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
