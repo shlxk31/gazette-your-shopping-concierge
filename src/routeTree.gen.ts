@@ -10,33 +10,101 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiQueryRouteImport } from './routes/api.query'
+import { Route as ApiProductsRouteImport } from './routes/api.products'
+import { Route as ApiChatRouteImport } from './routes/api.chat'
+import { Route as ApiQuestionsAnswerRouteImport } from './routes/api.questions.answer'
+import { Route as ApiProductsIdPricesRouteImport } from './routes/api.products.$id.prices'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiQueryRoute = ApiQueryRouteImport.update({
+  id: '/api/query',
+  path: '/api/query',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiProductsRoute = ApiProductsRouteImport.update({
+  id: '/api/products',
+  path: '/api/products',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiQuestionsAnswerRoute = ApiQuestionsAnswerRouteImport.update({
+  id: '/api/questions/answer',
+  path: '/api/questions/answer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiProductsIdPricesRoute = ApiProductsIdPricesRouteImport.update({
+  id: '/$id/prices',
+  path: '/$id/prices',
+  getParentRoute: () => ApiProductsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/chat': typeof ApiChatRoute
+  '/api/products': typeof ApiProductsRouteWithChildren
+  '/api/query': typeof ApiQueryRoute
+  '/api/questions/answer': typeof ApiQuestionsAnswerRoute
+  '/api/products/$id/prices': typeof ApiProductsIdPricesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/chat': typeof ApiChatRoute
+  '/api/products': typeof ApiProductsRouteWithChildren
+  '/api/query': typeof ApiQueryRoute
+  '/api/questions/answer': typeof ApiQuestionsAnswerRoute
+  '/api/products/$id/prices': typeof ApiProductsIdPricesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/chat': typeof ApiChatRoute
+  '/api/products': typeof ApiProductsRouteWithChildren
+  '/api/query': typeof ApiQueryRoute
+  '/api/questions/answer': typeof ApiQuestionsAnswerRoute
+  '/api/products/$id/prices': typeof ApiProductsIdPricesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/api/chat'
+    | '/api/products'
+    | '/api/query'
+    | '/api/questions/answer'
+    | '/api/products/$id/prices'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/api/chat'
+    | '/api/products'
+    | '/api/query'
+    | '/api/questions/answer'
+    | '/api/products/$id/prices'
+  id:
+    | '__root__'
+    | '/'
+    | '/api/chat'
+    | '/api/products'
+    | '/api/query'
+    | '/api/questions/answer'
+    | '/api/products/$id/prices'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiChatRoute: typeof ApiChatRoute
+  ApiProductsRoute: typeof ApiProductsRouteWithChildren
+  ApiQueryRoute: typeof ApiQueryRoute
+  ApiQuestionsAnswerRoute: typeof ApiQuestionsAnswerRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +116,62 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/query': {
+      id: '/api/query'
+      path: '/api/query'
+      fullPath: '/api/query'
+      preLoaderRoute: typeof ApiQueryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/products': {
+      id: '/api/products'
+      path: '/api/products'
+      fullPath: '/api/products'
+      preLoaderRoute: typeof ApiProductsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/questions/answer': {
+      id: '/api/questions/answer'
+      path: '/api/questions/answer'
+      fullPath: '/api/questions/answer'
+      preLoaderRoute: typeof ApiQuestionsAnswerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/products/$id/prices': {
+      id: '/api/products/$id/prices'
+      path: '/$id/prices'
+      fullPath: '/api/products/$id/prices'
+      preLoaderRoute: typeof ApiProductsIdPricesRouteImport
+      parentRoute: typeof ApiProductsRoute
+    }
   }
 }
 
+interface ApiProductsRouteChildren {
+  ApiProductsIdPricesRoute: typeof ApiProductsIdPricesRoute
+}
+
+const ApiProductsRouteChildren: ApiProductsRouteChildren = {
+  ApiProductsIdPricesRoute: ApiProductsIdPricesRoute,
+}
+
+const ApiProductsRouteWithChildren = ApiProductsRoute._addFileChildren(
+  ApiProductsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiChatRoute: ApiChatRoute,
+  ApiProductsRoute: ApiProductsRouteWithChildren,
+  ApiQueryRoute: ApiQueryRoute,
+  ApiQuestionsAnswerRoute: ApiQuestionsAnswerRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
