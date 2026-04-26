@@ -1,13 +1,29 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { wrap, pricesFor } from "@/server/mock";
+
+const BASE_URL = process.env.VITE_API_URL ?? "http://localhost:8000";
+const API_PREFIX = "/api/v1";
 
 export const Route = createFileRoute("/api/products/$id/prices")({
   server: {
     handlers: {
-      GET: async ({ params }) => {
-        // small artificial delay to surface the skeleton state
-        await new Promise((r) => setTimeout(r, 400));
-        return Response.json(wrap({ prices: pricesFor(params.id) }));
+      GET: async ({ params, request }) => {
+        const incoming = new URL(request.url);
+        const session_id = incoming.searchParams.get("session_id") ?? "";
+
+        const upstream = `${BASE_URL}${API_PREFIX}/products/${params.id}/prices?session_id=${session_id}`;
+
+        try {
+          const resp = await fetch(upstream, {
+            headers: { "Content-Type": "application/json" },
+          });
+          const json = await resp.json();
+          return Response.json(json, { status: resp.status });
+        } catch (err) {
+          return Response.json(
+            { success: false, error: { code: "UPSTREAM_ERROR", message: String(err) }, data: null },
+            { status: 502 }
+          );
+        }
       },
     },
   },
