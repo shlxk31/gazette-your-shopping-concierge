@@ -14,7 +14,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from app.core import session_store
 from app.models.session import Session
 from app.services.groq_client import complete_json
-from app.services.web_search import web_search
+from app.services.web_search import marketplace_price_search  # ← use dedicated price fetcher
 from app.utils.prompt_builder import build_price_synthesis_prompt
 from app.utils.response_helpers import format_search_results
 
@@ -88,18 +88,15 @@ class MarketplaceAggregatorAgent:
 
     def _parallel_marketplace_search(self, product_name: str) -> list[dict]:
         """
-        Runs one web search query per marketplace concurrently.
+        Runs marketplace_price_search per marketplace concurrently.
         Returns the combined, deduplicated list of search result dicts.
         """
         all_results: list[dict] = []
 
-        def search_marketplace(marketplace: str) -> list[dict]:
-            query = f'"{product_name}" buy price {marketplace}'
-            return web_search(query, max_results=RESULTS_PER_MARKETPLACE)
-
         with ThreadPoolExecutor(max_workers=len(MARKETPLACES)) as pool:
             futures = {
-                pool.submit(search_marketplace, mp): mp for mp in MARKETPLACES
+                pool.submit(marketplace_price_search, product_name, mp): mp
+                for mp in MARKETPLACES
             }
             for future in as_completed(futures):
                 marketplace = futures[future]
