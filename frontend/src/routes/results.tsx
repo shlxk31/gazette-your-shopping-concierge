@@ -34,7 +34,7 @@ function ResultsPage() {
     (async () => {
       try {
         const data = await api<{ products: Product[] }>(
-          `/api/products?session_id=${session.session_id}&category=${session.detected_category || "general"}`
+          `/products?session_id=${session.session_id}&category=${session.detected_category || "general"}`
         );
         if (!cancelled) {
           setProducts(data.products.slice(0, 5));
@@ -138,12 +138,13 @@ function ProductCard({ product, isTopPick, index }: { product: Product; isTopPic
   const [prices, setPrices] = useState<Price[] | null>(null);
   const [pricesLoading, setPricesLoading] = useState(true);
   const [showCompare, setShowCompare] = useState(false);
+  const session = loadSession()
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const data = await api<{ prices: Price[] }>(`/api/products/${product.id}/prices`);
+        const data = await api<{ prices: Price[] }>(`/products/${product.id}/prices?session_id=${session.session_id}`);
         if (!cancelled) {
           setPrices(data.prices);
           setPricesLoading(false);

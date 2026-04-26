@@ -1,5 +1,8 @@
 import type { ApiResponse } from "./types";
 
+const BASE_URL = import.meta.env.VITE_API_URL
+const API_PREFIX = "/api/v1"
+
 export class ApiError extends Error {
   code: string;
   constructor(code: string, message: string) {
@@ -12,7 +15,8 @@ export async function api<T>(
   url: string,
   init?: RequestInit
 ): Promise<T> {
-  const res = await fetch(url, {
+  console.log(`${BASE_URL}${API_PREFIX}${url}`)
+  const res = await fetch(`${BASE_URL}${API_PREFIX}${url}`, {
     ...init,
     headers: {
       "Content-Type": "application/json",

@@ -36,7 +36,7 @@ function Landing() {
         initial_questions: Question[];
         mode: string;
         query: string;
-      }>("/api/query", { method: "POST", body: JSON.stringify({ query: q }) });
+      }>("/query", { method: "POST", body: JSON.stringify({ query: q }) });
       const prev = loadSession();
       saveSession({
         ...prev,
@@ -72,7 +72,7 @@ function Landing() {
 
       {/* Ambient glow */}
       <div
-        className="pointer-events-none absolute inset-0"
+        className="pointer-events-none absolute inset-0 -translate-y-32"
         style={{
           background:
             "radial-gradient(ellipse 55% 30% at 50% 57%, rgba(245,166,35,0.18) 0%, transparent 65%)",
@@ -80,7 +80,7 @@ function Landing() {
       />
 
       {/* Center content */}
-      <main className="relative z-10 flex min-h-[calc(100vh-56px)] flex-col items-center justify-center px-6">
+      <main className="relative z-10 flex min-h-[calc(100vh-56px)] flex-col items-center justify-center px-6 -translate-y-32">
         <h1
           className="font-display font-bold"
           style={{ color: "var(--primary)", fontSize: "72px", marginBottom: "32px", lineHeight: 1 }}

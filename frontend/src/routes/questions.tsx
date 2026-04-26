@@ -80,7 +80,7 @@ function QuestionsPage() {
         next_questions: Question[] | null;
         is_complete: boolean;
         redirect_to: string | null;
-      }>("/api/questions/answer", {
+      }>("/questions/answer", {
         method: "POST",
         body: JSON.stringify({
           session_id: session.session_id,
@@ -114,7 +114,7 @@ function QuestionsPage() {
     if (!m || !session.session_id) return;
     setChatMsg("");
     try {
-      const data = await api<{ message: string; updated_questions: Question[] | null }>("/api/chat", {
+      const data = await api<{ message: string; updated_questions: Question[] | null }>("/chat", {
         method: "POST",
         body: JSON.stringify({ session_id: session.session_id, message: m }),
       });
@@ -150,7 +150,6 @@ function QuestionsPage() {
                   style={{
                     maxHeight: visible ? 1000 : 0,
                     opacity: visible ? 1 : 0,
-                    overflow: "hidden",
                     transition:
                       "max-height 300ms var(--ease-emphasized), opacity 200ms 100ms var(--ease-emphasized)",
                   }}
