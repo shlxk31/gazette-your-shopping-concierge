@@ -11,7 +11,9 @@ pipeline {
     }
 
     stages {
-
+        tools {
+            'hudson.plugins.sonar.SonarRunnerInstallation' 'sonar-scanner'
+        }
         stage('Checkout Code') {
             steps {
                 git branch: 'main',
@@ -23,10 +25,9 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    def scannerHome = tool 'SonarScanner' 
                     withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
                         sh '''
-                            ${scannerHome}/bin/sonar-scanner \
+                            sonar-scanner \
                             -Dsonar.login=$SONAR_AUTH_TOKEN
                         '''
                     }
