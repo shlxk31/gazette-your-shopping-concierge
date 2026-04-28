@@ -209,30 +209,36 @@ def build_product_synthesis_prompt(
 # ──────────────────────────────────────────────
 
 PRICE_SYNTHESIS_SYSTEM = """
-You are a price comparison assistant. Given web search results from various marketplaces,
-extract and structure pricing data. Output ONLY valid JSON.
+You are a price comparison assistant. Given Google Shopping results that list multiple
+sellers for a product, extract and normalise pricing data per seller.
+Output ONLY valid JSON — no markdown, no preamble.
 """
 
 PRICE_SYNTHESIS_USER = """
 Product: {product_name}
 
-Marketplace search results:
+Google Shopping results (each entry has a body like
+"Seller: Amazon | Price: ₹85,990 | Availability: In Stock"):
 {search_results}
 
-Extract pricing info and return a JSON array:
+Parse every entry and return a JSON array — one object per seller listing:
 [
   {{
-    "marketplace": "<marketplace name>",
-    "price": <numeric price or 0 if not found>,
-    "currency": "<USD|INR|EUR|GBP|etc>",
-    "url": "<direct product URL>",
+    "marketplace": "<seller name, e.g. Amazon, Flipkart, Croma>",
+    "price": <numeric price as a plain number, no symbols or commas — 0 if unparseable>,
+    "currency": "<INR|USD|EUR|GBP — infer from symbol: ₹=INR, $=USD, £=GBP>",
+    "url": "<seller product URL from the result>",
     "availability": "<in_stock|out_of_stock|limited>",
     "is_best": false
   }}
 ]
 
-After building the list, set is_best to true only on the entry with the lowest price
-that is in_stock or limited. If no prices are found, return an empty array [].
+Rules:
+- Strip currency symbols and commas when setting price (e.g. "₹1,09,990" → 109990).
+- Map "In Stock" → "in_stock", "Out of Stock" → "out_of_stock", anything else → "limited".
+- If the same seller appears twice, keep only the cheaper listing.
+- If no price data exists at all, return an empty array [].
+- Do NOT set is_best here — it will be computed separately.
 """
 
 

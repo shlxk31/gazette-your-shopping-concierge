@@ -241,6 +241,111 @@ def _airtop_marketplace_price(product_name: str, marketplace: str, domain: str) 
 
 
 # ──────────────────────────────────────────────
+# Google Shopping — single-session price aggregation
+# ──────────────────────────────────────────────
+
+# JSON schema for Shopping page extraction
+_SHOPPING_RESULT_SCHEMA = {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "results": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "title":        {"type": "string", "description": "Product name as shown"},
+                    "url":          {"type": "string", "description": "Link to the seller's product page"},
+                    "body":         {"type": "string", "description": "Seller name, price with currency, and stock status. Format: 'Seller: <name> | Price: <price> | Availability: <In Stock|Out of Stock>'"},
+                },
+                "required": ["title", "url", "body"],
+                "additionalProperties": False,
+            },
+        },
+        "error": {"type": "string", "description": "Error message if no results found", "minLength": 1},
+    },
+}
+
+
+def _airtop_google_shopping(product_name: str, locale: str = "in") -> Optional[list[dict]]:
+    """
+    Scrape one Google Shopping page that already aggregates multiple sellers.
+    locale='in' → google.co.in (Amazon.in, Flipkart, Croma, etc.)
+    locale='com' → google.com (Amazon.com, Best Buy, etc.)
+    """
+    if not settings.airtop_api_key:
+        return None
+
+    session_id = None
+    domain = "google.co.in" if locale == "in" else "google.com"
+    url = f"https://www.{domain}/search?tbm=shop&q={requests.utils.quote(product_name)}&hl=en"
+    if locale == "in":
+        url += "&gl=in"
+
+    try:
+        session_id = _airtop_create_session()
+        if not session_id:
+            return None
+
+        window_id = _airtop_create_window(session_id, url)
+        if not window_id:
+            return None
+
+        prompt = (
+            f"This is a Google Shopping page for '{product_name}'. "
+            "Extract up to 8 product listings. For each, capture the seller name "
+            "(e.g. Amazon, Flipkart, Croma), the price with currency symbol, "
+            "and whether it is in stock. "
+            "Format the body field exactly as: "
+            "'Seller: <name> | Price: <price> | Availability: <In Stock or Out of Stock>'. "
+            "Skip duplicate sellers — keep the cheapest listing per seller. "
+            "Use the error field only if the page shows no products at all."
+        )
+        data = _airtop_page_query(session_id, window_id, prompt, _SHOPPING_RESULT_SCHEMA)
+
+        if data.get("error"):
+            logger.info("Airtop Shopping (%s): no results — %s", domain, data["error"])
+            return None
+
+        results = data.get("results", [])
+        logger.info(
+            "Airtop Shopping (%s) '%s' → %d seller listings",
+            domain, product_name, len(results),
+        )
+        return results if results else None
+
+    except Exception as exc:
+        logger.warning("Airtop Shopping failed (%s) '%s': %s", domain, product_name, exc)
+        return None
+    finally:
+        if session_id:
+            _airtop_terminate(session_id)
+
+
+def google_shopping_search(product_name: str) -> list[dict]:
+    """
+    Public interface for marketplace price aggregation.
+    Strategy: google.co.in (India) → google.com (global) → DDG fallback.
+    Returns a list of search-result dicts [{title, url, body}, ...].
+    """
+    # 1. Try India Shopping page
+    results = _airtop_google_shopping(product_name, locale="in")
+    if results:
+        return results
+
+    # 2. Fall back to global Shopping page
+    logger.info("Shopping .co.in failed — trying google.com for '%s'", product_name)
+    results = _airtop_google_shopping(product_name, locale="com")
+    if results:
+        return results
+
+    # 3. DDG text search as last resort
+    logger.info("Airtop Shopping unavailable — DDG fallback for '%s'", product_name)
+    ddg_query = f"{product_name} buy price Amazon Flipkart Croma site:google.com/shopping OR amazon.in OR flipkart.com"
+    return _ddg_search(f"{product_name} price buy online India", max_results=6)
+
+
+# ──────────────────────────────────────────────
 # DuckDuckGo fallback
 # ──────────────────────────────────────────────
 
@@ -277,7 +382,11 @@ def product_review_search(product_name: str) -> list[dict]:
 
 
 def marketplace_price_search(product_name: str, marketplace: str) -> list[dict]:
-    """Price lookup via Airtop real browser, DDG snippets as fallback."""
+    """
+    Legacy per-marketplace price lookup (kept for backwards compat).
+    Agents should prefer google_shopping_search() for efficiency.
+    Price lookup via Airtop real browser, DDG snippets as fallback.
+    """
     domain = _marketplace_domain(marketplace)
     results = _airtop_marketplace_price(product_name, marketplace, domain)
     if results:
