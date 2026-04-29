@@ -4,6 +4,7 @@ pipeline {
     environment {
         SONARQUBE = 'SonarQube'
         PROJECT_KEY = 'Gazette'
+        DOTENV = credentials('gazette-dotenv')
     }
 
     triggers {
@@ -46,6 +47,7 @@ pipeline {
         stage('Build & Run (Docker Compose)') {
             steps{
                 sh '''
+                cp $DOTENV .env
                 docker compose down || true
                 docker compose up -d --build
                 '''
