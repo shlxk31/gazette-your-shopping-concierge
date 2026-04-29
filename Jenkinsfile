@@ -20,14 +20,16 @@ pipeline {
         }
 
         stage('SonarQube Analysis') {
-            def scannerHome = tool 'SonarScanner';
             steps {
-                withSonarQubeEnv() {
-                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                        sh '''
-                            ${scannerHome}/bin/sonar-scanner \
-                            -Dsonar.login=$SONAR_AUTH_TOKEN
-                        '''
+                script{
+                    def scannerHome = tool 'SonarScanner'
+                    echo "DEBUG: The scanner home path is: ${scannerHome}"
+                    withSonarQubeEnv() {
+                        withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                            sh """
+                                ${scannerHome}/bin/sonar-scanner
+                            """
+                        }
                     }
                 }
             }
@@ -42,10 +44,10 @@ pipeline {
         }
 
         stage('Build & Run (Docker Compose)') {
-            steps {
+            steps{
                 sh '''
                 docker compose down || true
-                docker compose up --build -d
+                docker compose up -d --build
                 '''
             }
         }
