@@ -35,7 +35,7 @@ export function Sidebar({ variant }: Props) {
       className="fixed left-0 top-0 flex h-screen w-[268px] flex-col px-5 py-6"
       style={{ background: "var(--surface)" }}
     >
-      <div className="px-2 text-2xl font-display font-bold" style={{ color: "var(--primary)" }}>
+      <div className="px-2 text-2xl font-display font-bold" style={{ color: "white" }}>
         Gazette
       </div>
 
