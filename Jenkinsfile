@@ -14,6 +14,30 @@ pipeline {
                 credentialsId: 'git-token'
             }
         }
+        
+        stage('SonarQube Analysis') {
+            steps {
+                script{
+                    def scannerHome = tool 'SonarScanner'
+                    echo "DEBUG: The scanner home path is: ${scannerHome}"
+                    withSonarQubeEnv() {
+                        withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                            sh """
+                                ${scannerHome}/bin/sonar-scanner
+                            """
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
 
         stage('Build Images') {
             steps {
