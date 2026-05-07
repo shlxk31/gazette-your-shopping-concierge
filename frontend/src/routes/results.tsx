@@ -218,7 +218,7 @@ function ProductCard({ product, isTopPick, index }: { product: Product; isTopPic
             }}
           >
             <span className="font-display text-xl font-bold leading-none" style={{ color: "var(--on-surface)" }}>
-              {product.match_score}
+              {product.match_score > 1 ? Math.round(product.match_score) : Math.round(product.match_score * 100)}
             </span>
             <span className="mt-0.5 text-label-sm" style={{ color: "var(--outline)" }}>
               % FIT

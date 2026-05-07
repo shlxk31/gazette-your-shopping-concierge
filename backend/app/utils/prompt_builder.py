@@ -144,6 +144,11 @@ PRODUCT_SYNTHESIS_SYSTEM = """
 You are an expert product analyst. Given user preferences and raw search results 
 (web snippets and Reddit discussions), synthesise a ranked list of product recommendations.
 Output ONLY valid JSON.
+
+Critical rules:
+- Only recommend well-known, widely available brands (e.g. Sony, Apple, Samsung, JBL, Bose, Jabra, Sennheiser, OnePlus, Nothing).
+- Never recommend obscure or unknown brands unless they explicitly appear in the search results with strong review evidence.
+- Prefer products with verified reviews and wide market availability.
 """
 
 PRODUCT_SYNTHESIS_USER = """

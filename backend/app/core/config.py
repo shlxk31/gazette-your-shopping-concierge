@@ -12,8 +12,8 @@ class Settings(BaseSettings):
     reddit_client_secret: str = ""
     reddit_user_agent: str = "ecommerce-agent/1.0"
     
-    #Airtop
-    airtop_api_key: str = ""
+    # Web Search
+    tavily_api_key: str = ""
 
     # App
     app_env: str = "development"

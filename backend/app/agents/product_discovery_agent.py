@@ -11,13 +11,13 @@ Responsibilities:
 import logging
 import asyncio
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from app.services.web_search import web_search, product_review_search, product_image_search
 from typing import Optional
 
 from app.core import session_store
 from app.core.constants import SessionStatus, MAX_WEB_RESULTS, MAX_REDDIT_POSTS
 from app.models.session import Session
 from app.services.groq_client import complete_json
-from app.services.web_search import web_search, product_review_search
 from app.services.reddit_search import search_reddit
 from app.utils.prompt_builder import (
     build_discovery_query_prompt,
@@ -164,5 +164,9 @@ class ProductDiscoveryAgent:
         except ValueError as exc:
             logger.error("Product synthesis failed: %s", exc)
             products = []
+
+        for p in products:
+            if not p.get("image"):
+                p["image"] = product_image_search(p.get("name", "")) or ""
 
         return products
